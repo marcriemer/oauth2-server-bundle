@@ -97,7 +97,7 @@ final class ClientManager implements ClientManagerInterface
 
         $redirectUris = $clientFilter->getRedirectUris();
         if ($redirectUris) {
-            $criteria['redirect_uris'] = $redirectUris;
+            $criteria['redirectUris'] = $redirectUris;
         }
 
         $scopes = $clientFilter->getScopes();
