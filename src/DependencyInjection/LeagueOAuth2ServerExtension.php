@@ -7,6 +7,7 @@ namespace League\Bundle\OAuth2ServerBundle\DependencyInjection;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use League\Bundle\OAuth2ServerBundle\AuthorizationServer\GrantTypeInterface;
 use League\Bundle\OAuth2ServerBundle\Command\CreateClientCommand;
+use League\Bundle\OAuth2ServerBundle\Controller\OpenidController;
 use League\Bundle\OAuth2ServerBundle\DBAL\Type\Grant as GrantType;
 use League\Bundle\OAuth2ServerBundle\DBAL\Type\RedirectUri as RedirectUriType;
 use League\Bundle\OAuth2ServerBundle\DBAL\Type\Scope as ScopeType;
@@ -19,8 +20,10 @@ use League\Bundle\OAuth2ServerBundle\Manager\ScopeManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Persistence\Mapping\Driver;
 use League\Bundle\OAuth2ServerBundle\Security\Authenticator\OAuth2Authenticator;
 use League\Bundle\OAuth2ServerBundle\Service\CredentialsRevoker\DoctrineCredentialsRevoker;
+use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\Bundle\OAuth2ServerBundle\ValueObject\Scope as ScopeModel;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\ClaimExtractorIntercace;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -28,6 +31,9 @@ use League\OAuth2\Server\Grant\ImplicitGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\ResourceServer;
+use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
+use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
+use League\OAuth2\Server\ResponseTypes\IdTokenResponse;
 use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -60,6 +66,10 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
         $this->configureAuthorizationServer($container, $config['authorization_server']);
         $this->configureResourceServer($container, $config['resource_server']);
         $this->configureScopes($container, $config['scopes']);
+
+        if($config['authorization_server']['enable_openid_connect']) {
+            $this->configureOpenid($container, $config);
+        }
 
         $container->findDefinition(OAuth2Authenticator::class)
             ->setArgument(3, $config['role_prefix']);
@@ -137,6 +147,22 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
                 false,
             ]));
 
+        if ($config['enable_openid_connect']) {
+
+            $container
+                ->findDefinition(OpenidController::class)
+                ->addMethodCall('setEnbaled', [true])
+            ;
+
+            $container->findDefinition(AuthorizationServer::class)
+                ->setArgument(5, new Definition(IdTokenResponse::class, [
+                    new Reference(IdTokenRepositoryInterface::class),
+                    new Reference(ClaimSetRepositoryInterface::class),
+                    new Reference("league.oauth2_server.emitter"),
+                    new Reference(ClaimExtractorIntercace::class)
+                ]));
+        }
+
         if ($config['enable_client_credentials_grant']) {
             $authorizationServer->addMethodCall('enableGrantType', [
                 new Reference(ClientCredentialsGrant::class),
@@ -173,6 +199,41 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
         }
 
         $this->configureGrants($container, $config);
+    }
+
+
+    public function configureOpenid(ContainerBuilder $container, array $config): void
+    {
+
+        $configuration = $container->findDefinition(OpenidConfiguration::class);
+        
+        $grantTypes = [];
+        if ($config['authorization_server']['enable_client_credentials_grant']) {
+            $grantTypes[] = "client_credentials";
+        }
+
+        if ($config['authorization_server']['enable_password_grant']) {
+            $grantTypes[] = "password";
+        }
+
+        if ($config['authorization_server']['enable_refresh_token_grant']) {
+            $grantTypes[] = "refresh_token";
+        }
+
+        if ($config['authorization_server']['enable_auth_code_grant']) {
+            $grantTypes[] = "authorization_code";
+        }
+
+        if ($config['authorization_server']['enable_implicit_grant']) {
+            $grantTypes[] = "implicit";
+        }
+        $configuration->addMethodCall('setGrantTypes', [$grantTypes]);
+        $configuration->addMethodCall('setScopes', [ $config['scopes']['available']]);
+        $configuration->addMethodCall('setPublicKeyPath', [ $config['resource_server']['public_key']]);
+
+        if (array_key_exists('claims', $config)) {
+            $configuration->addMethodCall('setClaims', [$config['claims']]);
+        }
     }
 
     private function configureGrants(ContainerBuilder $container, array $config): void

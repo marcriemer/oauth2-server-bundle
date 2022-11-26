@@ -14,6 +14,7 @@ use League\Bundle\OAuth2ServerBundle\Command\DeleteClientCommand;
 use League\Bundle\OAuth2ServerBundle\Command\ListClientsCommand;
 use League\Bundle\OAuth2ServerBundle\Command\UpdateClientCommand;
 use League\Bundle\OAuth2ServerBundle\Controller\AuthorizationController;
+use League\Bundle\OAuth2ServerBundle\Controller\OpenidController;
 use League\Bundle\OAuth2ServerBundle\Controller\TokenController;
 use League\Bundle\OAuth2ServerBundle\Converter\ScopeConverter;
 use League\Bundle\OAuth2ServerBundle\Converter\ScopeConverterInterface;
@@ -29,8 +30,10 @@ use League\Bundle\OAuth2ServerBundle\Manager\InMemory\ScopeManager;
 use League\Bundle\OAuth2ServerBundle\Manager\RefreshTokenManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Manager\ScopeManagerInterface;
 use League\Bundle\OAuth2ServerBundle\OAuth2Events;
+use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\Bundle\OAuth2ServerBundle\Repository\AuthCodeRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\ClientRepository;
+use League\Bundle\OAuth2ServerBundle\Repository\IdTokenRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\RefreshTokenRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\ScopeRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\UserRepository;
@@ -51,6 +54,8 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
+use League\OAuth2\Server\ClaimExtractor;
+use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -58,6 +63,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security;
+use League\OAuth2\Server\ClaimExtractorIntercace;
 
 return static function (ContainerConfigurator $container): void {
     $container->services()
@@ -311,5 +317,27 @@ return static function (ContainerConfigurator $container): void {
             ])
 
         ->set('league.oauth2_server.factory.http_foundation', HttpFoundationFactory::class)
+        
+        // Openid configuration
+        ->set('league.oauth2_server.openid.config', OpenidConfiguration::class)
+        ->alias(OpenidConfiguration::class, 'league.oauth2_server.openid.config')
+
+        // claim extractor for id token claims
+        ->set('league.oauth2_server.claimextractor', ClaimExtractor::class)
+        ->alias(ClaimExtractorIntercace::class, 'league.oauth2_server.claimextractor')
+
+        ->set('league.oauth2_server.idtoken.repository', IdTokenRepository::class)
+            ->args([
+                service(RequestStack::class)
+            ])
+        ->alias(IdTokenRepositoryInterface::class, 'league.oauth2_server.idtoken.repository')      
+
+        // The open id controller
+        ->set('league.oauth2_server.controller.openid', OpenidController::class)
+            ->args([
+                service(OpenidConfiguration::class)
+            ])
+            ->tag('controller.service_arguments')
+        ->alias(OpenidController::class, 'league.oauth2_server.controller.openid');
     ;
 };
