@@ -2,6 +2,8 @@
 
 namespace League\Bundle\OAuth2ServerBundle\Controller;
 
+use Jose\Component\Core\JWKSet;
+use Jose\Component\KeyManagement\JWKFactory;
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -9,8 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use Strobotti\JWK\KeyFactory;
-use Strobotti\JWK\KeySet;
 
 final class OpenidController
 {
@@ -61,17 +61,7 @@ final class OpenidController
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
-
-        $pub = trim(file_get_contents($config->getPublicKeyPath()));
-        $keyFactory = new KeyFactory();
-        $options = [
-            "use" => "sig",
-            "alg" => "RS256",
-            "kid" => hash("sha256", $pub)
-        ];
-        $keySet = new KeySet();
-        $keySet->addKey($keyFactory->createFromPem($pub, $options));
-        return new JsonResponse($keySet);
+        return new JsonResponse(new JWKSet([JWKFactory::createFromKeyFile($config->getPublicKeyPath())]));
     }
 
     /**
