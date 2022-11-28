@@ -51,10 +51,10 @@ final class OpenidController
 
         $claimSet = $this->claimSetRepository->getClaimSetEntry($psr7Request);
         if ($claimSet) {
-            return new UserInfoResponse($claimSet);
+            return new JsonResponse($claimSet);
         }
 
-        return new Response(\json_encode([]));
+        return new JsonResponse([]);
     }
 
 	public function revokeAction(AccessTokenRepositoryInterface $repository)

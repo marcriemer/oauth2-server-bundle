@@ -64,6 +64,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security;
 use League\OAuth2\Server\ClaimExtractorIntercace;
+use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
+use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 
 return static function (ContainerConfigurator $container): void {
     $container->services()
@@ -335,7 +337,10 @@ return static function (ContainerConfigurator $container): void {
         // The open id controller
         ->set('league.oauth2_server.controller.openid', OpenidController::class)
             ->args([
-                service(OpenidConfiguration::class)
+                service('league.oauth2_server.factory.psr_http'),
+                service('league.oauth2_server.resource_server'),
+                service(ClaimSetRepositoryInterface::class),                
+                service('league.oauth2_server.openid.config')
             ])
             ->tag('controller.service_arguments')
         ->alias(OpenidController::class, 'league.oauth2_server.controller.openid');
