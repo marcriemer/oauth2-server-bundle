@@ -61,7 +61,6 @@ final class TokenController
         $serverRequest = $this->httpMessageFactory->createRequest($request);
         $serverResponse = $this->responseFactory->createResponse();
 
-
         try {
             $response = $this->server->respondToAccessTokenRequest($serverRequest, $serverResponse);
         } catch (OAuthServerException $e) {

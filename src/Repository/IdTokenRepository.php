@@ -21,7 +21,8 @@ class IdTokenRepository implements IdTokenRepositoryInterface
 {
     public function __construct(
         private RequestStack $stack)
-    {}
+    {
+    }
 
     /**
      * {@inheritdoc}
@@ -35,9 +36,10 @@ class IdTokenRepository implements IdTokenRepositoryInterface
             ->expiresAt($accessToken->getExpiryDateTime())
             ->relatedTo($accessToken->getUserIdentifier());
 
-        if ($this->stack->getCurrentRequest()->query->has("nonce")) {
-            $builder->withClaim('nonce', $this->stack->getCurrentRequest()->query->has("nonce"));
+        if ($this->stack->getCurrentRequest()->query->has('nonce')) {
+            $builder->withClaim('nonce', $this->stack->getCurrentRequest()->query->has('nonce'));
         }
+
         return $builder;
     }
 }

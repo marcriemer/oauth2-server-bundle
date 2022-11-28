@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace League\Bundle\OAuth2ServerBundle\Controller;
 
 use Jose\Component\Core\JWKSet;
@@ -7,15 +9,14 @@ use Jose\Component\KeyManagement\JWKFactory;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationFailedException;
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use League\OAuth2\Server\ResponseTypes\UserInfoResponse;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OpenidController
 {
@@ -26,18 +27,20 @@ final class OpenidController
         private ResourceServer $resourceServer,
         private ClaimSetRepositoryInterface $claimSetRepository,
         private OpenidConfiguration $config
-    ) {}
+    ) {
+    }
 
-	public function configurationAction(Request $request, UrlGeneratorInterface $router)
-	{
+    public function configurationAction(Request $request, UrlGeneratorInterface $router)
+    {
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
+
         return $this->config->getJsonResponse($request, $router);
     }
 
-	public function userinfoAction(Request $request)
-	{   
+    public function userinfoAction(Request $request)
+    {
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
@@ -57,8 +60,8 @@ final class OpenidController
         return new JsonResponse([]);
     }
 
-	public function revokeAction(AccessTokenRepositoryInterface $repository)
-	{
+    public function revokeAction(AccessTokenRepositoryInterface $repository)
+    {
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
@@ -68,7 +71,7 @@ final class OpenidController
     }
 
     public function checkSessionAction(Request $request)
-	{
+    {
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
@@ -76,19 +79,20 @@ final class OpenidController
         return new Response();
     }
 
-	public function certsAction(OpenidConfiguration $config)
-	{
+    public function certsAction(OpenidConfiguration $config)
+    {
         if (!$this->enbaled) {
             return new Response(null, 404);
         }
+
         return new JsonResponse(new JWKSet([JWKFactory::createFromKeyFile($config->getPublicKeyPath())]));
     }
 
     /**
      * Set the value of enbaled
      *
-     * @return  self
-     */ 
+     * @return self
+     */
     public function setEnbaled($enbaled)
     {
         $this->enbaled = $enbaled;

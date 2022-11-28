@@ -30,9 +30,9 @@ use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\ImplicitGrant;
 use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
-use League\OAuth2\Server\ResourceServer;
 use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
 use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
+use League\OAuth2\Server\ResourceServer;
 use League\OAuth2\Server\ResponseTypes\IdTokenResponse;
 use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Component\Config\FileLocator;
@@ -67,7 +67,7 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
         $this->configureResourceServer($container, $config['resource_server']);
         $this->configureScopes($container, $config['scopes']);
 
-        if($config['authorization_server']['enable_openid_connect']) {
+        if ($config['authorization_server']['enable_openid_connect']) {
             $this->configureOpenid($container, $config);
         }
 
@@ -148,7 +148,6 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
             ]));
 
         if ($config['enable_openid_connect']) {
-
             $container
                 ->findDefinition(OpenidController::class)
                 ->addMethodCall('setEnbaled', [true])
@@ -158,8 +157,8 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
                 ->setArgument(5, new Definition(IdTokenResponse::class, [
                     new Reference(IdTokenRepositoryInterface::class),
                     new Reference(ClaimSetRepositoryInterface::class),
-                    new Reference("league.oauth2_server.emitter"),
-                    new Reference(ClaimExtractorIntercace::class)
+                    new Reference('league.oauth2_server.emitter'),
+                    new Reference(ClaimExtractorIntercace::class),
                 ]));
         }
 
@@ -201,37 +200,35 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
         $this->configureGrants($container, $config);
     }
 
-
     public function configureOpenid(ContainerBuilder $container, array $config): void
     {
-
         $configuration = $container->findDefinition(OpenidConfiguration::class);
-        
+
         $grantTypes = [];
         if ($config['authorization_server']['enable_client_credentials_grant']) {
-            $grantTypes[] = "client_credentials";
+            $grantTypes[] = 'client_credentials';
         }
 
         if ($config['authorization_server']['enable_password_grant']) {
-            $grantTypes[] = "password";
+            $grantTypes[] = 'password';
         }
 
         if ($config['authorization_server']['enable_refresh_token_grant']) {
-            $grantTypes[] = "refresh_token";
+            $grantTypes[] = 'refresh_token';
         }
 
         if ($config['authorization_server']['enable_auth_code_grant']) {
-            $grantTypes[] = "authorization_code";
+            $grantTypes[] = 'authorization_code';
         }
 
         if ($config['authorization_server']['enable_implicit_grant']) {
-            $grantTypes[] = "implicit";
+            $grantTypes[] = 'implicit';
         }
         $configuration->addMethodCall('setGrantTypes', [$grantTypes]);
-        $configuration->addMethodCall('setScopes', [ $config['scopes']['available']]);
-        $configuration->addMethodCall('setPublicKeyPath', [ $config['resource_server']['public_key']]);
+        $configuration->addMethodCall('setScopes', [$config['scopes']['available']]);
+        $configuration->addMethodCall('setPublicKeyPath', [$config['resource_server']['public_key']]);
 
-        if (array_key_exists('claims', $config)) {
+        if (\array_key_exists('claims', $config)) {
             $configuration->addMethodCall('setClaims', [$config['claims']]);
         }
     }

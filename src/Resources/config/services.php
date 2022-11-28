@@ -30,7 +30,6 @@ use League\Bundle\OAuth2ServerBundle\Manager\InMemory\ScopeManager;
 use League\Bundle\OAuth2ServerBundle\Manager\RefreshTokenManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Manager\ScopeManagerInterface;
 use League\Bundle\OAuth2ServerBundle\OAuth2Events;
-use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\Bundle\OAuth2ServerBundle\Repository\AuthCodeRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\ClientRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\IdTokenRepository;
@@ -39,9 +38,12 @@ use League\Bundle\OAuth2ServerBundle\Repository\ScopeRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\UserRepository;
 use League\Bundle\OAuth2ServerBundle\Security\Authenticator\OAuth2Authenticator;
 use League\Bundle\OAuth2ServerBundle\Security\EventListener\CheckScopeListener;
+use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\Bundle\OAuth2ServerBundle\Service\SymfonyLeagueEventListenerProvider;
 use League\Event\Emitter;
 use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\ClaimExtractor;
+use League\OAuth2\Server\ClaimExtractorIntercace;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\ImplicitGrant;
@@ -49,13 +51,13 @@ use League\OAuth2\Server\Grant\PasswordGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
+use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
-use League\OAuth2\Server\ClaimExtractor;
-use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
@@ -63,9 +65,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Security;
-use League\OAuth2\Server\ClaimExtractorIntercace;
-use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
-use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 
 return static function (ContainerConfigurator $container): void {
     $container->services()
@@ -319,7 +318,7 @@ return static function (ContainerConfigurator $container): void {
             ])
 
         ->set('league.oauth2_server.factory.http_foundation', HttpFoundationFactory::class)
-        
+
         // Openid configuration
         ->set('league.oauth2_server.openid.config', OpenidConfiguration::class)
         ->alias(OpenidConfiguration::class, 'league.oauth2_server.openid.config')
@@ -330,19 +329,18 @@ return static function (ContainerConfigurator $container): void {
 
         ->set('league.oauth2_server.idtoken.repository', IdTokenRepository::class)
             ->args([
-                service(RequestStack::class)
+                service(RequestStack::class),
             ])
-        ->alias(IdTokenRepositoryInterface::class, 'league.oauth2_server.idtoken.repository')      
+        ->alias(IdTokenRepositoryInterface::class, 'league.oauth2_server.idtoken.repository')
 
         // The open id controller
         ->set('league.oauth2_server.controller.openid', OpenidController::class)
             ->args([
                 service('league.oauth2_server.factory.psr_http'),
                 service('league.oauth2_server.resource_server'),
-                service(ClaimSetRepositoryInterface::class),                
-                service('league.oauth2_server.openid.config')
+                service(ClaimSetRepositoryInterface::class),
+                service('league.oauth2_server.openid.config'),
             ])
             ->tag('controller.service_arguments')
         ->alias(OpenidController::class, 'league.oauth2_server.controller.openid');
-    ;
 };
