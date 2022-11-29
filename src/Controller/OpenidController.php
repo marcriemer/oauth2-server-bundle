@@ -6,11 +6,11 @@ namespace League\Bundle\OAuth2ServerBundle\Controller;
 
 use Jose\Component\Core\JWKSet;
 use Jose\Component\KeyManagement\JWKFactory;
+use League\Bundle\OAuth2ServerBundle\Repository\UserinfoRepositoryInterface;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationFailedException;
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
-use League\OAuth2\Server\Repositories\ClaimSetRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -25,7 +25,7 @@ final class OpenidController
     public function __construct(
         private HttpMessageFactoryInterface $httpMessageFactory,
         private ResourceServer $resourceServer,
-        private ClaimSetRepositoryInterface $claimSetRepository,
+        private UserinfoRepositoryInterface $userInfoRepository,
         private OpenidConfiguration $config
     ) {
     }
@@ -52,12 +52,14 @@ final class OpenidController
             throw OAuth2AuthenticationFailedException::create('The resource server rejected the request.', $e);
         }
 
-        $claimSet = $this->claimSetRepository->getClaimSetEntry($psr7Request);
-        if ($claimSet) {
-            return new JsonResponse($claimSet);
-        }
+        if ($psr7Request->getAttribute("oauth_user_id")) {
+            $userinfo = $this->userInfoRepository->getUserinfoByIdentifyer($psr7Request->getAttribute("oauth_user_id"));
+            if ($userinfo) {
+                return new JsonResponse($userinfo);
+            }
+        }        
 
-        return new JsonResponse([]);
+        return new JsonResponse([], JsonResponse::HTTP_UNAUTHORIZED);
     }
 
     public function revokeAction(AccessTokenRepositoryInterface $repository)
