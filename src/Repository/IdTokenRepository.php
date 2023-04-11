@@ -10,6 +10,7 @@ use Lcobucci\JWT\Token\Builder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Repositories\IdTokenRepositoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * IdTokenRepositoryInterface
@@ -20,7 +21,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class IdTokenRepository implements IdTokenRepositoryInterface
 {
     public function __construct(
-        private RequestStack $stack)
+        private RequestStack $stack,
+        private SessionInterface $session)
     {
     }
 
@@ -36,8 +38,8 @@ class IdTokenRepository implements IdTokenRepositoryInterface
             ->expiresAt($accessToken->getExpiryDateTime())
             ->relatedTo($accessToken->getUserIdentifier());
 
-        if ($this->stack->getCurrentRequest()->query->has('nonce')) {
-            $builder->withClaim('nonce', $this->stack->getCurrentRequest()->query->has('nonce'));
+        if ($this->session->has('nonce')) {
+            $builder->withClaim('nonce', $this->session->get('nonce'));
         }
 
         return $builder;

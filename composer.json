@@ -16,10 +16,14 @@
         }
     ],
     "repositories": {
-        "oauth2-server": {
-            "type": "vcs",
-            "url": "git@github.com:marcriemer/oauth2-server.git"
-        }    
+        "git.iptox.net/8": {
+            "type": "composer",
+            "url": "https://git.iptox.net/api/v4/group/8/-/packages/composer/packages.json"
+        },
+        "git.iptox.net/6": {
+            "type": "composer",
+            "url": "https://git.iptox.net/api/v4/group/6/-/packages/composer/packages.json"
+        }   
     },
     "require": {
         "php": ">=7.2",
