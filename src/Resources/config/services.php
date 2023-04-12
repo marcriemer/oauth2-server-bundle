@@ -64,7 +64,6 @@ use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 
 return static function (ContainerConfigurator $container): void {
@@ -330,8 +329,7 @@ return static function (ContainerConfigurator $container): void {
 
         ->set('league.oauth2_server.idtoken.repository', IdTokenRepository::class)
             ->args([
-                service(RequestStack::class),
-                service(SessionInterface::class),
+                service(RequestStack::class)
             ])
         ->alias(IdTokenRepositoryInterface::class, 'league.oauth2_server.idtoken.repository')
 

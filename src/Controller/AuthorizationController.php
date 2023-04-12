@@ -111,6 +111,8 @@ final class AuthorizationController
             $authRequest->setAuthorizationApproved($event->getAuthorizationResolution());
 
             if ($request->query->has('nonce')) {
+
+                die($request->query->get('nonce'));
                 $session->set('nonce', $request->query->get('nonce'));
             }
 

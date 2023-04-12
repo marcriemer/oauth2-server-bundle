@@ -21,8 +21,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class IdTokenRepository implements IdTokenRepositoryInterface
 {
     public function __construct(
-        private RequestStack $stack,
-        private SessionInterface $session)
+        private RequestStack $requestStack)
     {
     }
 
@@ -33,13 +32,13 @@ class IdTokenRepository implements IdTokenRepositoryInterface
     {
         $builder = (new Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates()))
             ->permittedFor($accessToken->getClient()->getIdentifier())
-            ->issuedBy($this->stack->getCurrentRequest()->getSchemeAndHttpHost())
+            ->issuedBy($this->requestStack->getCurrentRequest()->getSchemeAndHttpHost())
             ->issuedAt(new \DateTimeImmutable())
             ->expiresAt($accessToken->getExpiryDateTime())
             ->relatedTo($accessToken->getUserIdentifier());
 
-        if ($this->session->has('nonce')) {
-            $builder->withClaim('nonce', $this->session->get('nonce'));
+        if ($this->requestStack->getSession()->has('nonce')) {
+            $builder->withClaim('nonce', $this->requestStack->getSession()->get('nonce'));
         }
 
         return $builder;
