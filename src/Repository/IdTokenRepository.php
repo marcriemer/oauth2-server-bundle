@@ -30,6 +30,7 @@ class IdTokenRepository implements IdTokenRepositoryInterface
     public function getBuilder(AccessTokenEntityInterface $accessToken): Builder
     {
         return (new Builder(new JoseEncoder(), ChainedFormatter::withUnixTimestampDates()))
+            ->identifiedBy($accessToken->getIdentifier())
             ->permittedFor($accessToken->getClient()->getIdentifier())
             ->issuedBy($this->requestStack->getCurrentRequest()->getSchemeAndHttpHost())
             ->issuedAt(new \DateTimeImmutable())
