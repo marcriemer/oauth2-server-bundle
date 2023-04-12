@@ -16,7 +16,6 @@ use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class AuthorizationController
@@ -81,7 +80,7 @@ final class AuthorizationController
         $this->responseFactory = $responseFactory;
     }
 
-    public function indexAction(Request $request, SessionInterface $session): Response
+    public function indexAction(Request $request): Response
     {
         $serverRequest = $this->httpMessageFactory->createRequest($request);
         $serverResponse = $this->responseFactory->createResponse();
@@ -109,12 +108,6 @@ final class AuthorizationController
             }
 
             $authRequest->setAuthorizationApproved($event->getAuthorizationResolution());
-
-            if ($request->query->has('nonce')) {
-
-                die($request->query->get('nonce'));
-                $session->set('nonce', $request->query->get('nonce'));
-            }
 
             $response = $this->server->completeAuthorizationRequest($authRequest, $serverResponse);
         } catch (OAuthServerException $e) {
