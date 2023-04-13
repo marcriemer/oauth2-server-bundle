@@ -9,6 +9,7 @@ use Jose\Component\KeyManagement\JWKFactory;
 use League\Bundle\OAuth2ServerBundle\Repository\UserinfoRepositoryInterface;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationFailedException;
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
+use League\OAuth2\Server\ClaimExtractorIntercace;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
@@ -25,6 +26,7 @@ final class OpenidController
     public function __construct(
         private HttpMessageFactoryInterface $httpMessageFactory,
         private ResourceServer $resourceServer,
+        private ClaimExtractorIntercace $claimExtractor,
         private UserinfoRepositoryInterface $userInfoRepository,
         private OpenidConfiguration $config
     ) {
@@ -55,7 +57,7 @@ final class OpenidController
         if ($psr7Request->getAttribute("oauth_user_id")) {
             $userinfo = $this->userInfoRepository->getUserinfoByIdentifyer($psr7Request->getAttribute("oauth_user_id"));
             if ($userinfo) {
-                return new JsonResponse($userinfo);
+                return new JsonResponse($this->claimExtractor->extract($psr7Request->getAttribute("oauth_scopes"), $userinfo));
             }
         }        
 
