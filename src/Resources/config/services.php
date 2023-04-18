@@ -35,6 +35,7 @@ use League\Bundle\OAuth2ServerBundle\Repository\ClientRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\IdTokenRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\RefreshTokenRepository;
 use League\Bundle\OAuth2ServerBundle\Repository\ScopeRepository;
+use League\Bundle\OAuth2ServerBundle\Repository\UserinfoRepositoryInterface;
 use League\Bundle\OAuth2ServerBundle\Repository\UserRepository;
 use League\Bundle\OAuth2ServerBundle\Security\Authenticator\OAuth2Authenticator;
 use League\Bundle\OAuth2ServerBundle\Security\EventListener\CheckScopeListener;
@@ -338,7 +339,8 @@ return static function (ContainerConfigurator $container): void {
             ->args([
                 service('league.oauth2_server.factory.psr_http'),
                 service('league.oauth2_server.resource_server'),
-                service(ClaimSetRepositoryInterface::class),
+                service(ClaimExtractorIntercace::class),
+                service(UserinfoRepositoryInterface::class),
                 service('league.oauth2_server.openid.config'),
             ])
             ->tag('controller.service_arguments')
