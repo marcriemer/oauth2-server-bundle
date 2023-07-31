@@ -13,7 +13,7 @@ For implementation into Symfony projects, please see [bundle documentation](basi
 ## Requirements
 
 * [PHP 7.2](http://php.net/releases/7_2_0.php) or greater
-* [Symfony 5.2](https://symfony.com/roadmap/5.2) or greater
+* [Symfony 5.4](https://symfony.com/roadmap/5.4) or greater
 
 ## Installation
 
@@ -97,6 +97,9 @@ For implementation into Symfony projects, please see [bundle documentation](basi
 
                 # Name of the entity manager that you wish to use for managing clients and tokens.
                 entity_manager:       default
+
+                # Table name prefix.
+                table_prefix:         oauth2_
             in_memory:            ~
 
         # Set a custom prefix that replaces the default 'ROLE_OAUTH2_' role prefix
