@@ -15,6 +15,16 @@
             "homepage": "https://github.com/thephpleague/oauth2-server-bundle/graphs/contributors"
         }
     ],
+    "repositories": {
+        "git.iptox.net/8": {
+            "type": "composer",
+            "url": "https://git.iptox.net/api/v4/group/8/-/packages/composer/packages.json"
+        },
+        "git.iptox.net/6": {
+            "type": "composer",
+            "url": "https://git.iptox.net/api/v4/group/6/-/packages/composer/packages.json"
+        }   
+    },
     "require": {
         "php": ">=7.2",
         "doctrine/doctrine-bundle": "^2.0.8",
@@ -26,7 +36,8 @@
         "symfony/framework-bundle": "^5.4|^6.2",
         "symfony/polyfill-php81": "^1.22",
         "symfony/psr-http-message-bridge": "^2.0",
-        "symfony/security-bundle": "^5.4|^6.2"
+        "symfony/security-bundle": "^5.4|^6.2",
+        "web-token/jwt-key-mgmt": "3.1"
     },
     "require-dev": {
         "ext-pdo": "*",

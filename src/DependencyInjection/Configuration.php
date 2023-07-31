@@ -26,6 +26,7 @@ final class Configuration implements ConfigurationInterface
         $rootNode->append($this->createScopesNode());
         $rootNode->append($this->createPersistenceNode());
         $rootNode->append($this->createClientNode());
+        $rootNode->append($this->createClaimsNode());
 
         $rootNode
             ->children()
@@ -106,6 +107,10 @@ final class Configuration implements ConfigurationInterface
                     ->info('Whether to enable the implicit grant')
                     ->defaultTrue()
                 ->end()
+                ->booleanNode('enable_openid_connect')
+                    ->info('Whether to enable OpenID Connect')
+                    ->defaultFalse()
+                ->end()
                 ->booleanNode('persist_access_token')
                     ->info('Whether to enable access token saving to persistence layer')
                     ->defaultTrue()
@@ -154,6 +159,27 @@ final class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('default')
                     ->info("Scopes that will be assigned when no scope given.\nThis should be a simple array of strings.")
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->scalarPrototype()
+                        ->cannotBeEmpty()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+
+        return $node;
+    }
+
+    private function createClaimsNode(): NodeDefinition
+    {
+        $treeBuilder = new TreeBuilder('claims');
+        $node = $treeBuilder->getRootNode();
+
+        $node
+            ->children()
+                ->arrayNode('available')
+                    ->info("Claims that you wish to utilize in your application.\nThis should be a simple array of strings.")
                     ->isRequired()
                     ->cannotBeEmpty()
                     ->scalarPrototype()
