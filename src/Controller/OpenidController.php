@@ -9,7 +9,7 @@ use Jose\Component\KeyManagement\JWKFactory;
 use League\Bundle\OAuth2ServerBundle\Repository\UserinfoRepositoryInterface;
 use League\Bundle\OAuth2ServerBundle\Security\Exception\OAuth2AuthenticationFailedException;
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
-use League\OAuth2\Server\ClaimExtractorIntercace;
+use League\OAuth2\Server\ClaimExtractorInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use League\OAuth2\Server\ResourceServer;
@@ -26,7 +26,7 @@ final class OpenidController
     public function __construct(
         private HttpMessageFactoryInterface $httpMessageFactory,
         private ResourceServer $resourceServer,
-        private ClaimExtractorIntercace $claimExtractor,
+        private ClaimExtractorInterface $claimExtractor,
         private UserinfoRepositoryInterface $userInfoRepository,
         private OpenidConfiguration $config
     ) {

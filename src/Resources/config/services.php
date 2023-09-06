@@ -44,7 +44,7 @@ use League\Bundle\OAuth2ServerBundle\Service\SymfonyLeagueEventListenerProvider;
 use League\Event\Emitter;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\ClaimExtractor;
-use League\OAuth2\Server\ClaimExtractorIntercace;
+use League\OAuth2\Server\ClaimExtractorInterface;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\ImplicitGrant;
@@ -325,7 +325,7 @@ return static function (ContainerConfigurator $container): void {
 
         // claim extractor for id token claims
         ->set('league.oauth2_server.claimextractor', ClaimExtractor::class)
-        ->alias(ClaimExtractorIntercace::class, 'league.oauth2_server.claimextractor')
+        ->alias(ClaimExtractorInterface::class, 'league.oauth2_server.claimextractor')
 
         ->set('league.oauth2_server.idtoken.repository', IdTokenRepository::class)
             ->args([
@@ -338,7 +338,7 @@ return static function (ContainerConfigurator $container): void {
             ->args([
                 service('league.oauth2_server.factory.psr_http'),
                 service('league.oauth2_server.resource_server'),
-                service(ClaimExtractorIntercace::class),
+                service(ClaimExtractorInterface::class),
                 service(UserinfoRepositoryInterface::class),
                 service('league.oauth2_server.openid.config'),
             ])

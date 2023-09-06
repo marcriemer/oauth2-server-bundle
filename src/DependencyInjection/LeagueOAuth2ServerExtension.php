@@ -23,7 +23,7 @@ use League\Bundle\OAuth2ServerBundle\Service\CredentialsRevoker\DoctrineCredenti
 use League\Bundle\OAuth2ServerBundle\Service\OpenidConfiguration;
 use League\Bundle\OAuth2ServerBundle\ValueObject\Scope as ScopeModel;
 use League\OAuth2\Server\AuthorizationServer;
-use League\OAuth2\Server\ClaimExtractorIntercace;
+use League\OAuth2\Server\ClaimExtractorInterface;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
@@ -158,7 +158,7 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
                     new Reference(IdTokenRepositoryInterface::class),
                     new Reference(ClaimSetRepositoryInterface::class),
                     new Reference('league.oauth2_server.emitter'),
-                    new Reference(ClaimExtractorIntercace::class),
+                    new Reference(ClaimExtractorInterface::class),
                 ]));
         }
 
