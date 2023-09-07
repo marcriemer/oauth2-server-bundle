@@ -15,21 +15,17 @@
             "homepage": "https://github.com/thephpleague/oauth2-server-bundle/graphs/contributors"
         }
     ],
-    "repositories": {
-        "git.iptox.net/8": {
-            "type": "composer",
-            "url": "https://git.iptox.net/api/v4/group/8/-/packages/composer/packages.json"
-        },
-        "git.iptox.net/6": {
-            "type": "composer",
-            "url": "https://git.iptox.net/api/v4/group/6/-/packages/composer/packages.json"
-        }   
-    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/marcriemer/oauth2-server"
+        }
+    ],
     "require": {
         "php": ">=7.2",
         "doctrine/doctrine-bundle": "^2.0.8",
         "doctrine/orm": "^2.7.1",
-        "league/oauth2-server": "^8.6",
+        "league/oauth2-server": "^8.5",
         "nyholm/psr7": "^1.4",
         "psr/http-factory": "^1.0",
         "symfony/event-dispatcher": "^5.4|^6.2",
