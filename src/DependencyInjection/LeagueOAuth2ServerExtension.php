@@ -147,21 +147,6 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
                 false,
             ]));
 
-        if ($config['enable_openid_connect']) {
-            $container
-                ->findDefinition(OpenidController::class)
-                ->addMethodCall('setEnbaled', [true])
-            ;
-
-            $container->findDefinition(AuthorizationServer::class)
-                ->setArgument(5, new Definition(IdTokenResponse::class, [
-                    new Reference(IdTokenRepositoryInterface::class),
-                    new Reference(ClaimSetRepositoryInterface::class),
-                    new Reference('league.oauth2_server.emitter'),
-                    new Reference(ClaimExtractorInterface::class),
-                ]));
-        }
-
         if ($config['enable_client_credentials_grant']) {
             $authorizationServer->addMethodCall('enableGrantType', [
                 new Reference(ClientCredentialsGrant::class),
@@ -202,6 +187,18 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
 
     public function configureOpenid(ContainerBuilder $container, array $config): void
     {
+        $container
+            ->findDefinition(OpenidController::class)
+            ->addMethodCall('setEnbaled', [true]);
+
+        $container->findDefinition(AuthorizationServer::class)
+            ->setArgument(5, new Definition(IdTokenResponse::class, [
+                new Reference(IdTokenRepositoryInterface::class),
+                new Reference(ClaimSetRepositoryInterface::class),
+                new Reference('league.oauth2_server.emitter'),
+                new Reference(ClaimExtractorInterface::class),
+            ]));
+
         $configuration = $container->findDefinition(OpenidConfiguration::class);
 
         $grantTypes = [];
