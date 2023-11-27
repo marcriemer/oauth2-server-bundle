@@ -226,7 +226,7 @@ final class LeagueOAuth2ServerExtension extends Extension implements PrependExte
         $configuration->addMethodCall('setPublicKeyPath', [$config['resource_server']['public_key']]);
 
         if (\array_key_exists('claims', $config)) {
-            $configuration->addMethodCall('setClaims', [$config['claims']]);
+            $configuration->addMethodCall('setClaims', [$config['claims']['available']]);
         }
     }
 
